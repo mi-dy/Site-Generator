@@ -59,6 +59,8 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(html_node.value, "")
         self.assertEqual(html_node.props, {"src": "www.image.com", "alt": "this is an image"})
 
-
+    def test_node_split(self):
+        NotImplemented
+        
 if __name__ == "__main__":
     unittest.main()

@@ -32,5 +32,36 @@ def text_node_to_html_node(text_node):
         return result
     raise Exception("TextType not found")
 
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    new_nodes = []
+
+    for node in old_nodes:
+        
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        d_count = node.text.count(delimiter)
+        if d_count % 2 != 0:
+            raise Exception("Invalid Markdown syntax")
+        if d_count == 0:
+            new_nodes.append(node)
+            continue
+
+        text_split = node.text.split(delimiter)
+            
+        i = 0
+
+        while i < len(text_split):
+            if i % 2 == 0:
+                new_nodes.append(TextNode(text_split[i], TextType.TEXT))
+                i+=1
+            else:
+                new_nodes.append(TextNode(text_split[i], text_type))
+                i+=1
+
+    return new_nodes
+
 if __name__ == "__main__":
     main()
