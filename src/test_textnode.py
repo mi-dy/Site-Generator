@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from main import text_node_to_html_node, split_nodes_delimiter
+from main import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images
 
 
 class TestTextNode(unittest.TestCase):
@@ -83,6 +83,25 @@ class TestTextNode(unittest.TestCase):
 
         with self.assertRaises(Exception):
             split_nodes_delimiter([node], "**", TextType.BOLD)
+
+
+    def test_extract_markdwon_images(self):
+        matches = extract_markdown_images("this is an image ![image](link.com) and this ![image2](link2.com) but not this [link text](link3.com)")
+
+        self.assertEqual(matches, [("image", "link.com"), ("image2", "link2.com")])
+
+    def test_extract_markdwon_links(self):
+        matches = extract_markdown_links("this is a link [link1](link.com) and this [link2](link2.com) but not this ![image](link3.com)")
+
+        self.assertEqual(matches, [("link1", "link.com"), ("link2", "link2.com")])
+
+    def test_extract_markdown_false(self):
+        match1 = extract_markdown_links("this is just text")
+        match2 = extract_markdown_images("this is just text")
+
+        self.assertEqual(match1, [])
+        self.assertEqual(match2, [])
+
 
 if __name__ == "__main__":
     unittest.main()
