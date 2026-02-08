@@ -51,15 +51,13 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
         text_split = node.text.split(delimiter)
             
-        i = 0
-
-        while i < len(text_split):
+        for i, text in enumerate(text_split):
+            if text == "":
+                continue
             if i % 2 == 0:
-                new_nodes.append(TextNode(text_split[i], TextType.TEXT))
-                i+=1
+                new_nodes.append(TextNode(text, TextType.TEXT))
             else:
-                new_nodes.append(TextNode(text_split[i], text_type))
-                i+=1
+                new_nodes.append(TextNode(text, text_type))
 
     return new_nodes
 

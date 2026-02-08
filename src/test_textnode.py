@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from main import text_node_to_html_node
+from main import text_node_to_html_node, split_nodes_delimiter
 
 
 class TestTextNode(unittest.TestCase):
@@ -60,7 +60,29 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(html_node.props, {"src": "www.image.com", "alt": "this is an image"})
 
     def test_node_split(self):
-        NotImplemented
-        
+        n1 = TextNode("text text **bold** text text", TextType.TEXT)
+        n2 = TextNode("**bold** text text", TextType.TEXT)
+        n3 = TextNode("text text **bold**", TextType.TEXT)
+        n4 = TextNode("bold text", TextType.BOLD)
+
+        new_nodes = split_nodes_delimiter([n1,n2,n3,n4], "**", TextType.BOLD)
+        expected = [
+                TextNode("text text ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" text text", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" text text", TextType.TEXT),
+                TextNode("text text ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode("bold text", TextType.BOLD)]
+
+        self.assertEqual(new_nodes, expected)
+
+    def test_node_split_invalid(self):
+        node = TextNode("text ** text", TextType.TEXT)
+
+        with self.assertRaises(Exception):
+            split_nodes_delimiter([node], "**", TextType.BOLD)
+
 if __name__ == "__main__":
     unittest.main()
