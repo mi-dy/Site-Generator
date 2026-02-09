@@ -72,5 +72,36 @@ def extract_markdown_links(text):
     return matches
 
 
+def split_nodes_image(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        images = extract_markdown_images(node.text)
+        if images == []:
+            new_nodes.append(node)
+            continue
+
+        for image_alt, image_link in images:
+            sections = node.text.split(f"![{image_alt}]({image_link})", 1)
+            
+            if len(sections) > 1:
+                if sections[0] != "":
+                    new_nodes.append(TextNode(sections[0], TextType.TEXT))
+
+                new_nodes.append(TextNode(image_alt, TextType.IMAGE, image_link))
+                node.text = sections[1]
+
+        if node.text != "":
+            new_nodes.append(TextNode(node.text, TextType.TEXT))
+
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+
 if __name__ == "__main__":
     main()
