@@ -132,7 +132,5 @@ def split_nodes_link(old_nodes):
     return new_nodes
 
 
-def split_nodes_link(old_nodes):
-
 if __name__ == "__main__":
     main()

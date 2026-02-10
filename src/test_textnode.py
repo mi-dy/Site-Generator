@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from main import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images
+from main import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_image, split_nodes_link
 
 
 class TestTextNode(unittest.TestCase):
@@ -101,6 +101,34 @@ class TestTextNode(unittest.TestCase):
 
         self.assertEqual(match1, [])
         self.assertEqual(match2, [])
+
+    def test_split_nodes_image(self):
+        n1 = TextNode("marky text ![image text](www.imglink.com) more text [link text](www.linklink.com)", TextType.TEXT)
+        n2 = TextNode("![image text 2](www.imglink2.com)", TextType.TEXT)
+        n3 = TextNode("Just plain text", TextType.TEXT)
+
+        result = [
+                TextNode("marky text ", TextType.TEXT),
+                TextNode("image text", TextType.IMAGE, "www.imglink.com"),
+                TextNode(" more text [link text](www.linklink.com)", TextType.TEXT),
+                TextNode("image text 2", TextType.IMAGE, "www.imglink2.com"),
+                TextNode("Just plain text", TextType.TEXT)]
+
+        self.assertEqual(split_nodes_image([n1,n2,n3]), result)
+
+    def test_split_nodes_link(self):
+        n1 = TextNode("marky text [link text](www.linklink.com) more text ![image text](www.imglink.com)", TextType.TEXT)
+        n2 = TextNode("[link text 2](www.linklink2.com)", TextType.TEXT)
+        n3 = TextNode("Just plain text", TextType.TEXT)
+
+        result = [
+                TextNode("marky text ", TextType.TEXT),
+                TextNode("link text", TextType.LINK, "www.linklink.com"),
+                TextNode(" more text ![image text](www.imglink.com)", TextType.TEXT),
+                TextNode("link text 2", TextType.LINK, "www.linklink2.com"),
+                TextNode("Just plain text", TextType.TEXT)]
+
+        self.assertEqual(split_nodes_link([n1,n2,n3]), result)
 
 
 if __name__ == "__main__":
