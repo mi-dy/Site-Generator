@@ -131,6 +131,18 @@ def split_nodes_link(old_nodes):
 
     return new_nodes
 
+def markdown_to_blocks(markdown):
+    blocks = markdown.split("\n\n")
+    result = []
+
+    for i in range(len(blocks)):
+        if blocks[i] == "":
+            continue
+
+        result.append(blocks[i].strip())
+   
+    return result
+
 
 if __name__ == "__main__":
     main()
