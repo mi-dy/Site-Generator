@@ -131,17 +131,18 @@ def split_nodes_link(old_nodes):
 
     return new_nodes
 
-def markdown_to_blocks(markdown):
-    blocks = markdown.split("\n\n")
-    result = []
 
-    for i in range(len(blocks)):
-        if blocks[i] == "":
-            continue
+def text_to_textnodes(text):
+    node = [TextNode(text, TextType.TEXT)]
 
-        result.append(blocks[i].strip())
-   
-    return result
+    delimiters = [("**", TextType.BOLD), ("_", TextType.ITALIC), ("`", TextType.CODE)]
+
+    for d, tt in delimiters:
+        node = split_nodes_delimiter(node, d, tt)
+
+    node = split_nodes_link(split_nodes_image(node))
+    
+    return node
 
 
 if __name__ == "__main__":
