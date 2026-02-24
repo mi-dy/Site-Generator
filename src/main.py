@@ -1,6 +1,7 @@
 import re
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
+from blocks import BlockType, markdown_to_blocks, block_to_block_type 
 
 def main():
     node = TextNode("some text", TextType.LINK, "www.wowza.com")
@@ -143,6 +144,88 @@ def text_to_textnodes(text):
     node = split_nodes_link(split_nodes_image(node))
     
     return node
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    result = []
+
+    for block in blocks:
+        b_type = block_to_block_type(block)
+
+        if b_type == BlockType.PARAGRAPH:
+            text = block.replace("\n", " ")
+
+            children = text_to_children(text)
+            result.append(ParentNode("p", children))
+
+        if b_type == BlockType.HEADING:
+            hashes = re.match(r"(#{1,6}) ", block)
+            level = len(hashes.group(1))
+            tag = f"h{level}"
+            text = block[level+1:]
+
+            children = text_to_children(text)
+            result.append(ParentNode(tag, children))
+
+        if b_type == BlockType.CODE:
+            text = block[4:-3]
+            t_node = TextNode(text, TextType.TEXT)
+            child_node = text_node_to_html_node(t_node)
+            code_node = ParentNode("code", [child_node])
+            pre_node = ParentNode("pre", [code_node])
+            result.append(pre_node)
+        
+        if b_type == BlockType.QUOTE:
+            lines = block.split("\n")
+            n_block = ""
+            for line in lines:
+                line = line.strip(">").strip(" ")
+                if n_block == "":
+                    n_block = line
+                else:
+                    n_block = n_block + " " + line
+
+            children = text_to_children(n_block)
+            result.append(ParentNode("blockquote", children))
+
+        if b_type == BlockType.UNORDERED_LIST:
+            lines = block.split("\n")
+            p_nodes = []
+            for line in lines:
+
+                line = line.strip("-")
+                children = text_to_children(line)
+                p_nodes.append(ParentNode("li", children))
+
+            result.append(ParentNode("ul", p_nodes))
+
+        if b_type == BlockType.ORDERED_LIST:
+            lines = block.split("\n")
+            p_nodes = []
+
+            for line in lines:
+                parts = line.split(".", 1)
+                if len(parts) > 1:
+                    l_text = parts[1].strip(" ")
+
+                children = text_to_children(l_text)
+                p_nodes.append(ParentNode("li", children))
+
+            result.append(ParentNode("ol", p_nodes))
+
+    return ParentNode("div", result)
+
+
+
+def text_to_children(text):
+    t_nodes = text_to_textnodes(text)
+    children = []
+
+    for node in t_nodes:
+        children.append(text_node_to_html_node(node))
+
+    return children
 
 
 if __name__ == "__main__":
