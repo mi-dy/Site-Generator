@@ -194,7 +194,7 @@ def markdown_to_html_node(markdown):
             p_nodes = []
             for line in lines:
 
-                line = line.strip("-")
+                line = line[2:]
                 children = text_to_children(line)
                 p_nodes.append(ParentNode("li", children))
 

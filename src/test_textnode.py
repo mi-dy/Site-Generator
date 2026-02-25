@@ -181,5 +181,61 @@ the **same** even with inline stuff
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
+    def test_heading(self):
+        md = """
+###### This is a heading.
+"""
+        
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+                html,
+                "<div><h6>This is a heading.</h6></div>",
+        )
+
+    def test_quote(self):
+        md = """
+> This is a quoted text
+>And so is this
+> And this  
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+                html,
+                "<div><blockquote>This is a quoted text And so is this And this</blockquote></div>",
+        )
+
+    def test_unordered_list(self):
+        md = """
+- First item in the list
+- Second item in the list
+- Third item on the list
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+                html,
+                "<div><ul><li>First item in the list</li><li>Second item in the list</li><li>Third item on the list</li></ul></div>",
+        )
+
+    def test_unordered_list(self):
+        md = """
+1. First item in the list
+2. Second item in the list
+3. Third item on the list
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+                html,
+                "<div><ol><li>First item in the list</li><li>Second item in the list</li><li>Third item on the list</li></ol></div>",
+        )
+
+
+
 if __name__ == "__main__":
     unittest.main()
