@@ -1,11 +1,13 @@
 import re
+import os
+import shutil
+
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from blocks import BlockType, markdown_to_blocks, block_to_block_type 
 
 def main():
-    node = TextNode("some text", TextType.LINK, "www.wowza.com")
-    print(node)
+    file_copy()
 
 
 def text_node_to_html_node(text_node):
@@ -226,6 +228,34 @@ def text_to_children(text):
         children.append(text_node_to_html_node(node))
 
     return children
+
+
+def file_copy(folder = None):
+    src = "/home/mindaugas/Projects/Site Generator/static"
+    dst = "/home/mindaugas/Projects/Site Generator/public"
+
+    if folder != None:
+        src = src + "/" + folder
+        dst = dst + "/" + folder
+
+    if os.path.exists(dst):
+        shutil.rmtree(dst)
+    os.mkdir(dst)
+
+
+    for item in os.listdir(src):
+        s_path = f"{src}/{item}"
+        d_path = f"{dst}/{item}"
+
+        if os.path.isfile(s_path):
+            shutil.copy(s_path, d_path)
+        else:
+            if folder == None:
+                n_folder = item
+            else:
+                n_folder = folder + "/" + item
+            file_copy(n_folder)
+    return
 
 
 if __name__ == "__main__":
