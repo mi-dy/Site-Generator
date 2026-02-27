@@ -11,3 +11,4 @@ wheels/
 
 # Project fyles
 public/
+src/paths.py

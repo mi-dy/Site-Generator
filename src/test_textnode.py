@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from main import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_html_node
+from main import text_node_to_html_node, split_nodes_delimiter, extract_markdown_links, extract_markdown_images, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_html_node, extract_title
 
 
 class TestTextNode(unittest.TestCase):
@@ -235,7 +235,13 @@ the **same** even with inline stuff
                 "<div><ol><li>First item in the list</li><li>Second item in the list</li><li>Third item on the list</li></ol></div>",
         )
 
+    def test_extract_title(self):
+        md1 = "# This is a heading"
+        md2 = "## This is second level heading"
 
+        self.assertEqual(extract_title(md1), "This is a heading")
+        with self.assertRaises(Exception):
+            extract_title(md2)
 
 if __name__ == "__main__":
     unittest.main()

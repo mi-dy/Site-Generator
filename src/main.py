@@ -1,13 +1,14 @@
 import re
 import os
 import shutil
-
+from paths import *
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from blocks import BlockType, markdown_to_blocks, block_to_block_type 
 
 def main():
-    file_copy()
+    file_copy(p_static, p_public)
+    generate_page(p_index, p_template, p_public_index)
 
 
 def text_node_to_html_node(text_node):
@@ -230,33 +231,56 @@ def text_to_children(text):
     return children
 
 
-def file_copy(folder = None):
-    src = "/home/mindaugas/Projects/Site Generator/static"
-    dst = "/home/mindaugas/Projects/Site Generator/public"
+def file_copy(source_dir_path, dest_dir_path):
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
 
-    if folder != None:
-        src = src + "/" + folder
-        dst = dst + "/" + folder
-
-    if os.path.exists(dst):
-        shutil.rmtree(dst)
-    os.mkdir(dst)
-
-
-    for item in os.listdir(src):
-        s_path = f"{src}/{item}"
-        d_path = f"{dst}/{item}"
-
-        if os.path.isfile(s_path):
-            shutil.copy(s_path, d_path)
+    for filename in os.listdir(source_dir_path):
+        from_path = os.path.join(source_dir_path, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
         else:
-            if folder == None:
-                n_folder = item
-            else:
-                n_folder = folder + "/" + item
-            file_copy(n_folder)
-    return
+            file_copy(from_path, dest_path)
 
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        b_type = block_to_block_type(block)
+        if b_type == BlockType.HEADING:
+            hashes, header = markdown.split(" ", 1)
+            if len(hashes) == 1:
+                header = header.strip(" ")
+                return header
+
+    raise Exception("<h1> header not found")
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+
+    md_file = open(from_path)
+    md = md_file.read()
+
+    tp_file = open(template_path)
+    tp = tp_file.read()
+
+    html_node = markdown_to_html_node(md)
+    html = html_node.to_html()
+
+    title = extract_title(md)
+
+    tp = tp.replace("{{ Title }}", title)
+    tp = tp.replace("{{ Content }}", html)
+
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+    with open(dest_path, "w") as file:
+        file.write(tp)
+
+    md_file.close()
+    tp_file.close()
 
 if __name__ == "__main__":
     main()
