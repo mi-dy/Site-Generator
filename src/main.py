@@ -8,7 +8,7 @@ from blocks import BlockType, markdown_to_blocks, block_to_block_type
 
 def main():
     file_copy(p_static, p_public)
-    generate_page(p_index, p_template, p_public_index)
+    generate_pages_recursive(p_content, p_template, p_public)
 
 
 def text_node_to_html_node(text_node):
@@ -281,6 +281,22 @@ def generate_page(from_path, template_path, dest_path):
 
     md_file.close()
     tp_file.close()
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+
+    for file in os.listdir(dir_path_content):
+        f_path = os.path.join(dir_path_content, file)
+        d_path = os.path.join(dest_dir_path, file)
+
+        if os.path.isfile(f_path):
+            d_file = d_path.replace(".md", ".html")
+            generate_page(f_path, template_path, d_file)
+        else:
+            generate_pages_recursive(f_path, template_path, d_path)
+
+    return
+
 
 if __name__ == "__main__":
     main()
