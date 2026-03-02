@@ -1,14 +1,23 @@
 import re
 import os
 import shutil
-from paths import *
+import sys
+
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from blocks import BlockType, markdown_to_blocks, block_to_block_type 
 
 def main():
-    file_copy(p_static, p_public)
-    generate_pages_recursive(p_content, p_template, p_public)
+    if len(sys.argv) <= 1:
+        basepath = "/"
+    else:
+        basepath = sys.argv[1]
+
+    file_copy("./static", "./docs")
+    generate_pages_recursive("./content", "./template.html", "./docs", basepath)
+
+
+
 
 
 def text_node_to_html_node(text_node):
@@ -257,7 +266,7 @@ def extract_title(markdown):
     raise Exception("<h1> header not found")
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     md_file = open(from_path)
@@ -273,6 +282,8 @@ def generate_page(from_path, template_path, dest_path):
 
     tp = tp.replace("{{ Title }}", title)
     tp = tp.replace("{{ Content }}", html)
+    tp = tp.replace('href="/', f'href="{basepath}')
+    tp = tp.replace('src="/', f'src="{basepath}')
 
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
@@ -283,7 +294,7 @@ def generate_page(from_path, template_path, dest_path):
     tp_file.close()
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
 
     for file in os.listdir(dir_path_content):
         f_path = os.path.join(dir_path_content, file)
@@ -291,9 +302,9 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
 
         if os.path.isfile(f_path):
             d_file = d_path.replace(".md", ".html")
-            generate_page(f_path, template_path, d_file)
+            generate_page(f_path, template_path, d_file, basepath)
         else:
-            generate_pages_recursive(f_path, template_path, d_path)
+            generate_pages_recursive(f_path, template_path, d_path, basepath)
 
     return
 
